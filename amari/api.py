@@ -5,13 +5,7 @@ from typing import Dict, List, Optional
 
 import aiohttp
 
-from .exceptions import (
-    AmariServerError,
-    HTTPException,
-    InvalidToken,
-    NotFound,
-    RatelimitException,
-)
+from .exceptions import AmariServerError, HTTPException, InvalidToken, NotFound, RatelimitException
 from .objects import Leaderboard, Rewards, User, Users
 
 __all__ = ("AmariClient",)
@@ -63,6 +57,12 @@ class AmariClient:
 
         self.max_requests = 55
         self.request_period = 60
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc) -> None:
+        await self.close()
 
     async def close(self):
         """
@@ -239,7 +239,6 @@ class AmariClient:
         json: Dict = {},
         extra_headers: Dict = {},
     ) -> Dict:
-
         headers = dict(self._default_headers, **extra_headers)
 
         if self.use_anti_ratelimit:
